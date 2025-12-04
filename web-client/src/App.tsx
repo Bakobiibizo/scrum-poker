@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import { Users, LogOut, Check, Ticket, ExternalLink, Spade } from "lucide-react";
-import type { Room, WsMessage } from "./types";
+import type { Room } from "./types";
 import { STORY_POINTS } from "./types";
 
 /** Get chip color based on value */
