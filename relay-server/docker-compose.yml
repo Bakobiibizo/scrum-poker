@@ -4,7 +4,7 @@ services:
   relay:
     build: .
     ports:
-      - "3000:3000"
+      - "8060:8060"
     environment:
       - NODE_ENV=production
       - PORT=3000
