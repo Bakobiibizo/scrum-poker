@@ -1,0 +1,116 @@
+# Dependencies
+node_modules/
+**/node_modules/
+.pnp
+.pnp.js
+.yarn/
+
+# Build outputs
+dist/
+**/dist/
+build/
+out/
+*.tsbuildinfo
+
+# Rust / Tauri
+target/
+**/target/
+**/*.rs.bk
+*.rlib
+*.rmeta
+
+# Tauri specific
+src-tauri/gen/
+src-tauri/WixTools/
+src-tauri/icons/*.ico.d
+*.bundle
+
+# Tauri build artifacts
+*.msi
+*.exe
+!src-tauri/*.exe
+*.dmg
+*.app
+*.deb
+*.AppImage
+*.rpm
+*.nsis
+*.wixobj
+*.wixpdb
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.settings/
+*.sublime-workspace
+*.sublime-project
+.history/
+
+# OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+$RECYCLE.BIN/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Test coverage
+coverage/
+.nyc_output/
+*.lcov
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
+*.bak
+*.orig
+
+# Credentials (never commit these!)
+jira_credentials.enc
+jira_salt.key
+*.pem
+*.key
+*.p12
+*.pfx
+
+# Vite / Build tools
+.vite/
+.turbo/
+.eslintcache
+.prettiercache
+*.cache
+
+# TypeScript
+tsconfig.tsbuildinfo
+
+# Relay server
+relay-server/public/
+
+# Debug
+debug/
+*.pdb
+*.ilk
+*.map

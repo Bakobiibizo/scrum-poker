@@ -1,0 +1,67 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  font-family: "Inter", sans-serif;
+}
+
+/* Poker chip styles */
+.poker-chip {
+  @apply relative w-20 h-20 rounded-full flex items-center justify-center;
+  @apply font-bold text-white cursor-pointer transition-all duration-200;
+  @apply border-4 border-dashed border-opacity-30;
+  box-shadow: 
+    0 4px 6px -1px rgba(0, 0, 0, 0.3),
+    inset 0 2px 4px rgba(255, 255, 255, 0.2),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.poker-chip:hover {
+  transform: translateY(-4px) scale(1.05);
+  box-shadow: 
+    0 8px 12px -2px rgba(0, 0, 0, 0.4),
+    inset 0 2px 4px rgba(255, 255, 255, 0.2),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.poker-chip.selected {
+  @apply ring-4 ring-yellow-400;
+  transform: translateY(-8px) scale(1.1);
+}
+
+.poker-chip::before {
+  content: "";
+  @apply absolute inset-2 rounded-full border-2 border-white border-opacity-20;
+}
+
+/* Chip colors */
+.chip-red { @apply bg-red-600 border-red-400; }
+.chip-blue { @apply bg-blue-600 border-blue-400; }
+.chip-green { @apply bg-green-600 border-green-400; }
+.chip-black { @apply bg-gray-800 border-gray-600; }
+.chip-purple { @apply bg-purple-600 border-purple-400; }
+.chip-gold { @apply bg-yellow-600 border-yellow-400; }
+
+/* Felt table background */
+.felt-bg {
+  background: linear-gradient(135deg, #1a472a 0%, #2d5a3f 50%, #1a472a 100%);
+  background-size: 100px 100px;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-gray-200 rounded;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-gray-400 rounded;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-gray-500;
+}

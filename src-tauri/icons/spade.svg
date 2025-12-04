@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#22c55e"/>
+      <stop offset="100%" style="stop-color:#059669"/>
+    </linearGradient>
+  </defs>
+  <!-- Background circle -->
+  <circle cx="128" cy="128" r="120" fill="url(#bg)"/>
+  <!-- Spade shape -->
+  <path d="M128 40 
+           C128 40 60 100 60 145 
+           C60 175 85 195 115 195 
+           C105 210 95 225 90 235 
+           L166 235 
+           C161 225 151 210 141 195 
+           C171 195 196 175 196 145 
+           C196 100 128 40 128 40 Z" 
+        fill="white"/>
+</svg>

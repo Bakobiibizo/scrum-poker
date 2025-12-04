@@ -1,0 +1,95 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  font-family: "Inter", sans-serif;
+}
+
+/* Poker Chip Component */
+.poker-chip {
+  @apply relative flex items-center justify-center cursor-pointer transition-all duration-300;
+  @apply rounded-full font-bold;
+  perspective: 1000px;
+}
+
+.poker-chip-inner {
+  @apply w-full h-full rounded-full flex items-center justify-center;
+  @apply border-4 border-dashed;
+  box-shadow: 
+    0 6px 12px -2px rgba(0, 0, 0, 0.4),
+    inset 0 3px 6px rgba(255, 255, 255, 0.2),
+    inset 0 -3px 6px rgba(0, 0, 0, 0.3);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.poker-chip:hover .poker-chip-inner {
+  transform: translateY(-6px) scale(1.05);
+  box-shadow: 
+    0 12px 20px -4px rgba(0, 0, 0, 0.5),
+    inset 0 3px 6px rgba(255, 255, 255, 0.2),
+    inset 0 -3px 6px rgba(0, 0, 0, 0.3);
+}
+
+.poker-chip.selected .poker-chip-inner {
+  @apply ring-4 ring-yellow-400 ring-offset-2 ring-offset-gray-900;
+  transform: translateY(-8px) scale(1.1);
+}
+
+.poker-chip-inner::before {
+  content: "";
+  @apply absolute inset-3 rounded-full border-2 border-white/20;
+}
+
+/* Chip colors */
+.chip-red { @apply bg-red-600 border-red-400 text-white; }
+.chip-blue { @apply bg-blue-600 border-blue-400 text-white; }
+.chip-green { @apply bg-green-600 border-green-400 text-white; }
+.chip-black { @apply bg-gray-800 border-gray-600 text-white; }
+.chip-purple { @apply bg-purple-600 border-purple-400 text-white; }
+.chip-gold { @apply bg-yellow-500 border-yellow-300 text-gray-900; }
+.chip-white { @apply bg-gray-100 border-gray-300 text-gray-800; }
+
+/* Felt table background */
+.felt-bg {
+  background: 
+    radial-gradient(ellipse at center, #2d5a3f 0%, #1a472a 70%, #0f2d1a 100%);
+}
+
+/* Subtle noise texture */
+.felt-bg::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  opacity: 0.03;
+  pointer-events: none;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-gray-800 rounded;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-gray-600 rounded;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-gray-500;
+}
+
+/* Animation for revealed chips */
+@keyframes reveal-bounce {
+  0% { transform: scale(0.8) rotateY(180deg); opacity: 0; }
+  60% { transform: scale(1.1) rotateY(0deg); }
+  100% { transform: scale(1) rotateY(0deg); opacity: 1; }
+}
+
+.chip-reveal {
+  animation: reveal-bounce 0.5s ease-out forwards;
+}
