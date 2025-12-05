@@ -139,6 +139,10 @@ function handleMessage(ws: WebSocket, conn: ClientConnection, message: any) {
       handleHostCreateRoom(ws, conn, message);
       break;
 
+    case 'host_sync_room':
+      handleHostSyncRoom(ws, conn, message);
+      break;
+
     case 'host_delete_room':
       handleHostDeleteRoom(ws, conn, message);
       break;
@@ -202,6 +206,44 @@ function handleHostRegister(ws: WebSocket, conn: ClientConnection) {
     type: 'host_registered',
     rooms: hostRooms,
     relay_url: RELAY_URL,
+  }));
+}
+
+function handleHostSyncRoom(ws: WebSocket, conn: ClientConnection, message: any) {
+  // Host is syncing an existing room - use the provided ID and invite code
+  const existingRoom = rooms.get(message.room.id);
+  
+  const room: Room = {
+    id: message.room.id,
+    name: message.room.name,
+    invite_code: message.room.invite_code,
+    participants: message.room.participants || [],
+    votes_revealed: message.room.votes_revealed || false,
+    current_ticket: message.room.current_ticket || null,
+    host_ws: ws,
+  };
+
+  // Clean up old invite code mapping if room existed
+  if (existingRoom) {
+    inviteCodeToRoom.delete(existingRoom.invite_code.toLowerCase());
+  }
+
+  rooms.set(room.id, room);
+  inviteCodeToRoom.set(room.invite_code.toLowerCase(), room.id);
+
+  console.log(`Room synced from host: ${room.name} (${room.id})`);
+
+  // Confirm sync to host
+  ws.send(JSON.stringify({
+    type: 'room_synced',
+    room: {
+      id: room.id,
+      name: room.name,
+      invite_code: room.invite_code,
+      participants: room.participants,
+      votes_revealed: room.votes_revealed,
+      current_ticket: room.current_ticket,
+    }
   }));
 }
 

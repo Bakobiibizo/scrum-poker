@@ -18,6 +18,7 @@ const DEFAULT_RELAY_URL: &str = "wss://scrum-poker-hydra.ngrok.dev";
 pub enum OutgoingMessage {
     HostRegister,
     HostCreateRoom { name: String },
+    HostSyncRoom { room: Room },
     HostDeleteRoom { room_id: String },
     HostRevealVotes { room_id: String },
     HostHideVotes { room_id: String },
@@ -265,5 +266,10 @@ impl RelayClient {
     /// Clear current ticket for a room
     pub fn clear_ticket(&self, room_id: String) -> Result<(), String> {
         self.send(OutgoingMessage::HostClearTicket { room_id })
+    }
+    
+    /// Sync a local room to the relay server
+    pub fn sync_room(&self, room: Room) -> Result<(), String> {
+        self.send(OutgoingMessage::HostSyncRoom { room })
     }
 }

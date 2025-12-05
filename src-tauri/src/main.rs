@@ -81,7 +81,16 @@ async fn create_room(
     state: tauri::State<'_, Arc<AppState>>,
     name: String,
 ) -> Result<room::Room, String> {
-    Ok(state.create_room(name))
+    let room = state.create_room(name);
+    
+    // If relay is connected, sync the room
+    if let Some(relay_client) = state.get_relay_client().await {
+        if let Err(e) = relay_client.sync_room(room.clone()) {
+            tracing::warn!("Failed to sync room to relay: {}", e);
+        }
+    }
+    
+    Ok(room)
 }
 
 #[tauri::command]
@@ -99,13 +108,29 @@ async fn get_room(
 
 #[tauri::command]
 async fn delete_room(state: tauri::State<'_, Arc<AppState>>, room_id: String) -> Result<bool, String> {
-    Ok(state.delete_room(&room_id))
+    let deleted = state.delete_room(&room_id);
+    
+    // If relay is connected, notify about deletion
+    if deleted {
+        if let Some(relay_client) = state.get_relay_client().await {
+            if let Err(e) = relay_client.delete_room(room_id) {
+                tracing::warn!("Failed to delete room from relay: {}", e);
+            }
+        }
+    }
+    
+    Ok(deleted)
 }
 
 #[tauri::command]
 async fn reveal_votes(state: tauri::State<'_, Arc<AppState>>, room_id: String) -> Result<(), String> {
     state.set_votes_revealed(&room_id, true);
     state.broadcast_room_update(&room_id).await;
+    
+    // Notify relay
+    if let Some(relay_client) = state.get_relay_client().await {
+        let _ = relay_client.reveal_votes(room_id);
+    }
     Ok(())
 }
 
@@ -113,6 +138,11 @@ async fn reveal_votes(state: tauri::State<'_, Arc<AppState>>, room_id: String) -
 async fn hide_votes(state: tauri::State<'_, Arc<AppState>>, room_id: String) -> Result<(), String> {
     state.set_votes_revealed(&room_id, false);
     state.broadcast_room_update(&room_id).await;
+    
+    // Notify relay
+    if let Some(relay_client) = state.get_relay_client().await {
+        let _ = relay_client.hide_votes(room_id);
+    }
     Ok(())
 }
 
@@ -120,6 +150,11 @@ async fn hide_votes(state: tauri::State<'_, Arc<AppState>>, room_id: String) -> 
 async fn reset_votes(state: tauri::State<'_, Arc<AppState>>, room_id: String) -> Result<(), String> {
     state.reset_votes(&room_id);
     state.broadcast_room_update(&room_id).await;
+    
+    // Notify relay
+    if let Some(relay_client) = state.get_relay_client().await {
+        let _ = relay_client.reset_votes(room_id);
+    }
     Ok(())
 }
 
@@ -141,6 +176,11 @@ async fn kick_participant(
 ) -> Result<(), String> {
     state.remove_participant(&room_id, &participant_id);
     state.broadcast_room_update(&room_id).await;
+    
+    // Notify relay
+    if let Some(relay_client) = state.get_relay_client().await {
+        let _ = relay_client.kick_participant(room_id, participant_id);
+    }
     Ok(())
 }
 
@@ -297,6 +337,11 @@ async fn fetch_jira_ticket(
     // Update the room with the ticket
     state.set_current_ticket(&room_id, Some(ticket.clone()));
     state.broadcast_room_update(&room_id).await;
+    
+    // Notify relay
+    if let Some(relay_client) = state.get_relay_client().await {
+        let _ = relay_client.set_ticket(room_id, ticket.clone());
+    }
 
     Ok(ticket)
 }
@@ -308,6 +353,11 @@ async fn clear_current_ticket(
 ) -> Result<(), String> {
     state.set_current_ticket(&room_id, None);
     state.broadcast_room_update(&room_id).await;
+    
+    // Notify relay
+    if let Some(relay_client) = state.get_relay_client().await {
+        let _ = relay_client.clear_ticket(room_id);
+    }
     Ok(())
 }
 
@@ -789,6 +839,16 @@ async fn connect_relay(
     
     // Wait a moment for registration
     tokio::time::sleep(tokio::time::Duration::from_millis(500)).await;
+    
+    // Sync all existing local rooms to the relay
+    let rooms = state.get_rooms();
+    for room in rooms {
+        if let Err(e) = relay_client.sync_room(room.clone()) {
+            tracing::warn!("Failed to sync room {} to relay: {}", room.name, e);
+        } else {
+            tracing::info!("Synced room {} to relay", room.name);
+        }
+    }
     
     let relay_url = relay_client.get_relay_url().await;
     Ok(format!("Connected to relay: {}", relay_url))
