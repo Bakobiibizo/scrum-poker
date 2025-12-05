@@ -37,7 +37,7 @@ npm start
 docker build -t scrum-poker-relay .
 
 # Run container
-docker run -p 8060:8060 \
+docker run -p 8070:8070 \
   -e RELAY_URL=https://scrum-poker-hydra.ngrok.dev \
   scrum-poker-relay
 ```

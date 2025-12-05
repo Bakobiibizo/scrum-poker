@@ -4,9 +4,9 @@ services:
   relay:
     build: .
     ports:
-      - "8060:8060"
+      - "8070:8070"
     environment:
       - NODE_ENV=production
-      - PORT=8060
+      - PORT=8070
       - RELAY_URL=https://scrum-poker-hydra.ngrok.dev
     restart: unless-stopped

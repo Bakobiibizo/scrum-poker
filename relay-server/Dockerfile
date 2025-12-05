@@ -31,8 +31,8 @@ COPY --from=builder /app/dist ./dist
 COPY public ./public
 
 ENV NODE_ENV=production
-ENV PORT=8060
+ENV PORT=8070
 
-EXPOSE 8060
+EXPOSE 8070
 
 CMD ["node", "dist/server.js"]
