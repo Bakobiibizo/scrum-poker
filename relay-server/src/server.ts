@@ -8,7 +8,7 @@ const app = express();
 const server = createServer(app);
 const wss = new WebSocketServer({ server });
 
-const PORT = process.env.PORT || 8060;
+const PORT = process.env.PORT || 8070;
 const RELAY_URL = process.env.RELAY_URL || 'https://scrum-poker-hydra.ngrok.dev';
 
 // Types
