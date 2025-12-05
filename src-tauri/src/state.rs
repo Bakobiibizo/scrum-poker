@@ -128,6 +128,28 @@ impl AppState {
         }
     }
 
+    /// Update a room's state from the relay server (participants, votes, etc.)
+    /// This is called when the relay server sends a room_update message
+    pub fn update_room_from_relay(&self, relay_room: Room) {
+        if let Some(mut local_room) = self.rooms.get_mut(&relay_room.id) {
+            // Sync participants from relay (relay is authoritative for participant list)
+            local_room.participants = relay_room.participants;
+            // Sync votes_revealed state
+            local_room.votes_revealed = relay_room.votes_revealed;
+            // Note: We don't sync current_ticket from relay as it's set locally
+            tracing::debug!(
+                "Updated local room {} from relay: {} participants",
+                local_room.name,
+                local_room.participants.len()
+            );
+        } else {
+            tracing::warn!(
+                "Received relay update for unknown room: {}",
+                relay_room.id
+            );
+        }
+    }
+
     pub fn add_participant(&self, room_id: &str, participant: Participant) -> Option<String> {
         let participant_id = participant.id.clone();
         

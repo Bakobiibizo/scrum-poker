@@ -35,6 +35,7 @@ pub enum OutgoingMessage {
 pub enum IncomingMessage {
     HostRegistered { rooms: Vec<Room>, relay_url: String },
     RoomCreated { room: Room },
+    RoomSynced { room: Room },
     RoomDeleted { room_id: String },
     RoomUpdate { room: Room },
     Error { message: String },
@@ -120,9 +121,9 @@ impl RelayClient {
             while let Some(result) = read.next().await {
                 match result {
                     Ok(Message::Text(text)) => {
-                        tracing::debug!("Received from relay: {}", text);
-                        if let Ok(msg) = serde_json::from_str::<IncomingMessage>(&text) {
-                            match msg {
+                        tracing::info!("Received from relay: {}", text);
+                        match serde_json::from_str::<IncomingMessage>(&text) {
+                            Ok(msg) => match msg {
                                 IncomingMessage::HostRegistered { rooms: r, relay_url } => {
                                     tracing::info!("Host registered with {} existing rooms", r.len());
                                     *rooms_clone.write().await = r;
@@ -134,6 +135,10 @@ impl RelayClient {
                                     if let Some(cb) = callback_clone.read().await.as_ref() {
                                         cb(room);
                                     }
+                                }
+                                IncomingMessage::RoomSynced { room } => {
+                                    tracing::info!("Room synced: {}", room.name);
+                                    // Room was synced to relay, no action needed
                                 }
                                 IncomingMessage::RoomDeleted { room_id } => {
                                     tracing::info!("Room deleted: {}", room_id);
@@ -158,6 +163,9 @@ impl RelayClient {
                                 IncomingMessage::Pong => {
                                     // Keepalive response
                                 }
+                            },
+                            Err(e) => {
+                                tracing::error!("Failed to parse relay message: {} - raw: {}", e, text);
                             }
                         }
                     }

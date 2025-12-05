@@ -42,6 +42,7 @@ pub struct Room {
     pub name: String,
     pub participants: Vec<Participant>,
     pub votes_revealed: bool,
+    #[serde(default)]
     pub created_at: u64,
     pub invite_code: String,
     pub current_ticket: Option<JiraTicket>,

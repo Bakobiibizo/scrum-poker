@@ -834,6 +834,14 @@ async fn connect_relay(
     
     let relay_client = relay::RelayClient::connect(None).await?;
     
+    // Set up callback to sync relay room updates back to local state
+    let state_for_callback = state.inner().clone();
+    relay_client.set_room_update_callback(move |room| {
+        tracing::info!("Relay room update callback: {} ({} participants)", 
+            room.name, room.participants.len());
+        state_for_callback.update_room_from_relay(room);
+    }).await;
+    
     // Store the relay client in state
     state.set_relay_client(Some(relay_client.clone())).await;
     
