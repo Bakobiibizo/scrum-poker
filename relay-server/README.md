@@ -52,7 +52,7 @@ docker-compose up -d
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `PORT` | `3000` | Port to listen on |
+| `PORT` | `8070` | Port to listen on |
 | `RELAY_URL` | `https://scrum-poker-hydra.ngrok.dev` | Public URL of the relay server |
 
 ## How It Works
