@@ -3,9 +3,13 @@ use futures_util::{SinkExt, StreamExt};
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use tokio::sync::{mpsc, RwLock};
-use tokio_tungstenite::{connect_async, tungstenite::Message};
+use tokio_tungstenite::{
+    connect_async_tls_with_config,
+    tungstenite::Message,
+    Connector,
+};
 
-const DEFAULT_RELAY_URL: &str = "wss://scrum-poker.hydra.ngrok.dev";
+const DEFAULT_RELAY_URL: &str = "wss://scrum-poker-hydra.ngrok.dev";
 
 /// Messages sent TO the relay server
 #[derive(Debug, Clone, Serialize)]
@@ -58,9 +62,20 @@ impl RelayClient {
         
         tracing::info!("Connecting to relay server: {}", ws_url);
         
-        let (ws_stream, _) = connect_async(&ws_url)
-            .await
-            .map_err(|e| format!("Failed to connect to relay: {}", e))?;
+        // Create TLS connector using native roots
+        let tls_connector = Connector::NativeTls(
+            native_tls::TlsConnector::new()
+                .map_err(|e| format!("Failed to create TLS connector: {}", e))?
+        );
+        
+        let (ws_stream, _) = connect_async_tls_with_config(
+            &ws_url,
+            None,
+            false,
+            Some(tls_connector),
+        )
+        .await
+        .map_err(|e| format!("Failed to connect to relay: {}", e))?;
         
         tracing::info!("Connected to relay server");
         

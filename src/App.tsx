@@ -94,6 +94,9 @@ function App() {
   const [isRelayConnected, setIsRelayConnected] = useState(false);
   const [relayUrl, setRelayUrl] = useState<string | null>(null);
   const [isConnectingRelay, setIsConnectingRelay] = useState(false);
+  
+  // Copy link feedback
+  const [linkCopied, setLinkCopied] = useState(false);
 
   // Fetch rooms and server URL on mount
   useEffect(() => {
@@ -468,12 +471,34 @@ function App() {
     }
   };
 
+  const getInviteLink = (): { url: string; type: 'relay' | 'public' | 'local' } | null => {
+    if (!selectedRoom) return null;
+    
+    // Priority: 1. Relay (most accessible), 2. Public URL (UPnP), 3. Local
+    if (isRelayConnected && relayUrl) {
+      // Relay URL format: wss://... -> https://... for the web client
+      const httpRelayUrl = relayUrl.replace('wss://', 'https://').replace('ws://', 'http://');
+      return { url: `${httpRelayUrl}/join/${selectedRoom.id}`, type: 'relay' };
+    }
+    
+    if (networkInfo?.public_url) {
+      return { url: `${networkInfo.public_url}/join/${selectedRoom.id}`, type: 'public' };
+    }
+    
+    if (serverUrl) {
+      return { url: `${serverUrl}/join/${selectedRoom.id}`, type: 'local' };
+    }
+    
+    return null;
+  };
+
   const copyInviteLink = () => {
-    if (!selectedRoom || !serverUrl) return;
-    // Always use local URL - it works for same-network users
-    // Users needing public URL can get it from the Network modal
-    const link = `${serverUrl}/join/${selectedRoom.id}`;
-    navigator.clipboard.writeText(link);
+    const linkInfo = getInviteLink();
+    if (!linkInfo) return;
+    
+    navigator.clipboard.writeText(linkInfo.url);
+    setLinkCopied(true);
+    setTimeout(() => setLinkCopied(false), 2000);
   };
 
   const getVoteStats = () => {
@@ -638,12 +663,29 @@ function App() {
                 </div>
                 <button
                   onClick={copyInviteLink}
-                  className="px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded-md text-white 
-                           font-medium transition-colors flex items-center gap-2"
-                  title={`Copy: ${serverUrl}/join/${selectedRoom.id}`}
+                  className={`px-4 py-2 rounded-md text-white font-medium transition-all flex items-center gap-2
+                            ${linkCopied 
+                              ? 'bg-green-600 scale-105' 
+                              : 'bg-blue-600 hover:bg-blue-500'}`}
+                  title={getInviteLink()?.url || 'No link available'}
                 >
-                  <Link className="w-4 h-4" />
-                  Copy Invite Link
+                  {linkCopied ? (
+                    <>
+                      <CheckCircle className="w-4 h-4" />
+                      Copied!
+                    </>
+                  ) : (
+                    <>
+                      {isRelayConnected ? (
+                        <Globe className="w-4 h-4" />
+                      ) : networkInfo?.public_url ? (
+                        <ExternalLink className="w-4 h-4" />
+                      ) : (
+                        <Link className="w-4 h-4" />
+                      )}
+                      Copy {isRelayConnected ? 'Relay' : networkInfo?.public_url ? 'Public' : 'Local'} Link
+                    </>
+                  )}
                 </button>
               </div>
 

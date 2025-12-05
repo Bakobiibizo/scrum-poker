@@ -148,7 +148,7 @@ function App() {
         // Try to reconnect after a delay
         reconnectTimeoutRef.current = window.setTimeout(() => {
           connectWebSocket();
-        }, 8060);
+        }, 3000);
       }
     };
 

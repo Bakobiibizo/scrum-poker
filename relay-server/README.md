@@ -38,7 +38,7 @@ docker build -t scrum-poker-relay .
 
 # Run container
 docker run -p 8060:8060 \
-  -e RELAY_URL=https://scrum-poker.hydra.ngrok.dev \
+  -e RELAY_URL=https://scrum-poker-hydra.ngrok.dev \
   scrum-poker-relay
 ```
 
@@ -53,7 +53,7 @@ docker-compose up -d
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `PORT` | `3000` | Port to listen on |
-| `RELAY_URL` | `https://scrum-poker.hydra.ngrok.dev` | Public URL of the relay server |
+| `RELAY_URL` | `https://scrum-poker-hydra.ngrok.dev` | Public URL of the relay server |
 
 ## How It Works
 
